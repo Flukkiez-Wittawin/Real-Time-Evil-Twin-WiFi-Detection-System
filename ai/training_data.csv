@@ -1,0 +1,12 @@
+SSID,Channel,Signal,Encryption,Label
+HENG_2.4GHz,8,100,WPA2,normal
+HENG_2.4GHz,8,95,WPA2,normal
+HENG_2.4GHz,8,90,WPA2,normal
+KUMA,11,65,WPA2,normal
+KUMA,11,60,WPA2,normal
+HENG_5GHZ,44,100,WPA2,normal
+HENG_5GHZ,44,98,WPA2,normal
+KKU-WiFi,6,63,WPA2,normal
+KKU-WiFi,6,65,WPA2,normal
+KKU-WiFi,11,95,Open,evil
+HENG_2.4GHz,6,98,Open,evil

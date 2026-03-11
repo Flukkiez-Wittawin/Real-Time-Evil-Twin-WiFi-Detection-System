@@ -1,0 +1,9 @@
+{
+  "TRUSTED_NETWORKS": {
+    "HENG_2.4GHz": {
+      "bssid": ["6c:44:2a:7e:7f:c0"],
+      "channel": 8,
+      "encryption": "WPA2"
+    }
+  }
+}

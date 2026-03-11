@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project | System Handbook</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #030406;
+        --panel-bg: rgba(13, 17, 23, 0.85);
+        --accent: #00d9ff;
+        --danger: #ff0055;
+        --warning: #ffaa00;
+        --success: #00ffa3;
+        --text-primary: #e2e8f0;
+        --text-secondary: #64748b;
+        --border-color: rgba(0, 217, 255, 0.15);
+        --glass: blur(14px);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(
+            circle at 50% -20%,
+            rgba(0, 217, 255, 0.08) 0%,
+            transparent 60%
+          ),
+          linear-gradient(rgba(0, 217, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 217, 255, 0.02) 1px, transparent 1px);
+        background-size:
+          100% 100%,
+          50px 50px,
+          50px 50px;
+        color: var(--text-primary);
+        margin: 0;
+        padding: 2.5rem;
+        min-height: 100vh;
+      }
+
+      .header-container {
+        max-width: 1200px;
+        margin: 0 auto 2rem auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand h1::before {
+        content: "Detection";
+        font-size: 0.6rem;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 2px;
+      }
+
+      .content-area {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .panel-glass {
+        background: var(--panel-bg);
+        backdrop-filter: var(--glass);
+        -webkit-backdrop-filter: var(--glass);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+      }
+
+      h2 {
+        color: var(--accent);
+        font-size: 1.2rem;
+        letter-spacing: 0.1em;
+        margin-top: 0;
+        border-left: 4px solid var(--accent);
+        padding-left: 15px;
+      }
+
+      p {
+        line-height: 1.6;
+        color: var(--text-primary);
+        opacity: 0.9;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .feature-item {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 217, 255, 0.1);
+      }
+
+      .feature-item h3 {
+        color: var(--accent);
+        font-size: 0.9rem;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .feature-item p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+      }
+
+      code {
+        font-family: "Space Mono", monospace;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--warning);
+      }
+
+      .sys-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--border-color);
+        padding: 8px 16px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-secondary);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 10px var(--success);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <div class="brand"><h1>WiFi Evil Twin Detection</h1></div>
+
+      <nav style="display: flex; gap: 2rem; align-items: center">
+        <a
+          href="/"
+          style="
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 4px;
+          "
+          >DASHBOARD</a
+        >
+        <a
+          href="/manual"
+          style="
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding-bottom: 4px;
+          "
+          onmouseover="this.style.color = 'var(--accent)'"
+          onmouseout="this.style.color = 'var(--text-secondary)'"
+          >HANDBOOK</a
+        >
+        <a
+          href="/bruteforce"
+          style="
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding-bottom: 4px;
+          "
+          onmouseover="this.style.color = 'var(--accent)'"
+          onmouseout="this.style.color = 'var(--text-secondary)'"
+          >BRUTEFORCE</a
+        >
+      </nav>
+
+      <div class="sys-status">
+        <div class="status-dot"></div>
+        SYSTEM_READY
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div class="panel-glass">
+        <h2>OPERATIONAL HANDBOOK</h2>
+        <p>
+          ยินดีต้อนรับสู่ระบบเฝ้าระวัง WiFi Evil Twin ระดับสูง PHANTOM v3.0
+          ระบบนี้ถูกออกแบบมาเพื่อตรวจจับการโจมตีทางไซเบอร์ในเลเยอร์สัญญาณวิทยุ
+          (Radio Frequency) โดยเฉพาะ
+        </p>
+
+        <div class="feature-grid" style="margin-top: 2rem">
+          <div class="feature-item">
+            <h3>⚡ HYBRID AI ENGINE</h3>
+            <p>
+              สมองกล v3.0 ที่รวมเอา Machine Learning (Isolation Forest) เข้ากับ
+              Heuristic Analysis เพื่อวิเคราะห์ความเสี่ยงรายวินาที
+            </p>
+          </div>
+          <div class="feature-item">
+            <h3>📡 SIGNAL JITTER TRACKING</h3>
+            <p>
+              ตรวจวัดความเสถียรของสัญญาณ ถ้าสัญญาณสวิงผิดปกติ
+              ระบบจะระบุว่าเป็นพฤติกรรมของอุปกรณ์บุกรุก (Attack Tools)
+            </p>
+          </div>
+          <div class="feature-item">
+            <h3>🛡️ TARGET WATCHLIST</h3>
+            <p>
+              คุณสามารถกด
+              <code>SELECT</code>
+              เพื่อดึงเป้าหมายที่น่าสงสัยขึ้นมาเฝ้าดูเป็นกรณีพิเศษ (Pinned
+              Intel)
+            </p>
+          </div>
+          <div class="feature-item">
+            <h3>🔎 LIVE FILTERING</h3>
+            <p>
+              ระบบกรองข้อมูลอัจฉริยะ ช่วยให้คุณค้นหาชื่อเครือข่าย
+              หรือกรองดูเฉพาะ <code>THREAT</code> ได้ในทันที
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-glass">
+        <h2>คู่มือการใช้งานเบื้องต้น</h2>
+        <p>
+          1. <strong>Radio Intelligence:</strong> ดูรายการ WiFi รอบตัวได้ที่หน้า
+          Dashboard หลัก
+        </p>
+        <p>
+          2. <strong>การเฝ้าระวัง:</strong> หากพบสัญลักษณ์สีแดง (THREAT)
+          ให้กดปุ่ม Dropdown แล้วเลือก
+          <code>Pin to Watchlist</code> เพื่อแยกเป้าหมายออกมา
+        </p>
+        <p>
+          3. <strong>ความหมายของค่า RISK:</strong><br />
+          - <code>0-30%</code>: เครือข่ายปกติ<br />
+          - <code>31-70%</code>: น่าสงสัย (SUSPECT) อาจเป็นอุปกรณ์แปลกปลอม<br />
+          - <code>71-100%</code>: อันตรายสูง (THREAT) มีพฤติกรรมคล้าย Evil Twin
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project | WiFi Evil Twin Detection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #030406;
+        --panel-bg: rgba(13, 17, 23, 0.85);
+        --accent: #00d9ff;
+        --danger: #ff0055;
+        --warning: #ffaa00;
+        --success: #00ffa3;
+        --text-primary: #e2e8f0;
+        --text-secondary: #64748b;
+        --border-color: rgba(0, 217, 255, 0.15);
+        --glass: blur(14px);
+      }
+
+      * {
+        box-sizing: border-box;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(
+            circle at 50% -20%,
+            rgba(0, 217, 255, 0.08) 0%,
+            transparent 60%
+          ),
+          linear-gradient(rgba(0, 217, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 217, 255, 0.02) 1px, transparent 1px);
+        background-size:
+          100% 100%,
+          50px 50px,
+          50px 50px;
+        color: var(--text-primary);
+        margin: 0;
+        padding: 2.5rem;
+        min-height: 100vh;
+      }
+
+      .header-container {
+        max-width: 1600px;
+        margin: 0 auto 2rem auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand h1::before {
+        content: "Detection";
+        font-size: 0.6rem;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 2px;
+      }
+
+      .sys-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--border-color);
+        padding: 8px 16px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-secondary);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 10px var(--success);
+      }
+
+      .grid-layout {
+        max-width: 1600px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 1.5rem;
+      }
+
+      .main-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .panel-glass {
+        background: var(--panel-bg);
+        backdrop-filter: var(--glass);
+        -webkit-backdrop-filter: var(--glass);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        position: relative;
+      }
+
+      .watchlist-panel {
+        border-color: var(--danger);
+        background: rgba(45, 10, 20, 0.4);
+      }
+
+      .panel-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .watchlist-panel .panel-title {
+        color: var(--danger);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        text-align: left;
+        padding: 10px;
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        opacity: 0.6;
+      }
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      }
+
+      .ssid-cell {
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      .bssid-sub {
+        font-family: "Space Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--accent);
+        opacity: 0.8;
+        display: block;
+      }
+
+      /* ACTION BUTTONS */
+      .action-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        cursor: pointer;
+        font-family: inherit;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .action-btn:hover {
+        background: var(--accent);
+        color: #00d9ff;
+        background: rgba(0, 217, 255, 0.1);
+      }
+
+      .dropdown {
+        position: relative;
+        display: inline-block;
+        width: 100px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #0d1117;
+        min-width: 120px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.8);
+        z-index: 100;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        right: 0;
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      .dropdown-content button {
+        color: var(--text-primary);
+        padding: 8px 12px;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        border: none;
+        background: none;
+        text-align: left;
+        font-size: 0.65rem;
+        font-family: "Space Mono", monospace;
+        cursor: pointer;
+      }
+
+      .dropdown-content button:hover {
+        background-color: var(--accent);
+        color: #000;
+      }
+
+      .threat-pulse {
+        border-color: var(--danger) !important;
+        color: var(--danger) !important;
+        animation: threat-blink 1s infinite;
+      }
+      @keyframes threat-blink {
+        0% {
+          box-shadow: 0 0 0px var(--danger);
+        }
+        50% {
+          box-shadow: 0 0 10px var(--danger);
+        }
+        100% {
+          box-shadow: 0 0 0px var(--danger);
+        }
+      }
+
+      .tag {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .tag-danger {
+        background: var(--danger);
+        color: #fff;
+      }
+      .tag-safe {
+        border: 1px solid var(--success);
+        color: var(--success);
+      }
+      .tag-warn {
+        color: var(--warning);
+        border: 1px solid var(--warning);
+      }
+
+      .log-list {
+        height: 400px;
+        overflow-y: auto;
+        font-family: "Space Mono", monospace;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+      .log-row {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      }
+      .log-time {
+        color: var(--accent);
+        margin-right: 8px;
+      }
+
+      .stats-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .stat-box {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+      }
+      .stat-val {
+        font-family: "Space Mono", monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: block;
+      }
+      .stat-lbl {
+        font-size: 0.6rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+      }
+
+      .threat-info {
+        font-size: 0.65rem;
+        color: var(--danger);
+        margin-top: 4px;
+      }
+
+      /* Custom Dropdown Styling for Filter */
+      .filter-select {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-family: "Space Mono", monospace;
+        outline: none;
+        cursor: pointer;
+      }
+      .filter-select:hover {
+        border-color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <div class="brand"><h1>WiFi Evil Twin Detection</h1></div>
+
+      <nav style="display: flex; gap: 2rem; align-items: center">
+        <a
+          href="/"
+          style="
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 4px;
+          "
+          >DASHBOARD</a
+        >
+        <a
+          href="/manual"
+          style="
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding-bottom: 4px;
+          "
+          onmouseover="this.style.color = 'var(--accent)'"
+          onmouseout="this.style.color = 'var(--text-secondary)'"
+          >HANDBOOK</a
+        >
+        <a
+          href="/bruteforce"
+          style="
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding-bottom: 4px;
+          "
+          onmouseover="this.style.color = 'var(--accent)'"
+          onmouseout="this.style.color = 'var(--text-secondary)'"
+          >BRUTEFORCE</a
+        >
+      </nav>
+
+      <div class="sys-status">
+        <div class="status-dot"></div>
+        MONITOR ACTIVATE
+      </div>
+    </div>
+
+    <div class="grid-layout">
+      <div class="main-stack">
+        <!-- TARGET WATCHLIST -->
+        <div
+          id="target-section"
+          class="panel-glass watchlist-panel"
+          style="display: none"
+        >
+          <div class="panel-title">⚠️ PRIORITY TARGET WATCHLIST</div>
+          <table>
+            <thead>
+              <tr>
+                <th>TARGET SSID</th>
+                <th>FINGERPRINT & VENDOR</th>
+                <th>SIG</th>
+                <th>RISK</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="watchlist-rows"></tbody>
+          </table>
+        </div>
+
+        <!-- MAIN AIR TRAFFIC -->
+        <div class="panel-glass">
+          <div class="panel-title">
+            Radio Intelligence Overlay
+            <div
+              class="filter-bar"
+              style="margin-left: auto; display: flex; gap: 10px"
+            >
+              <input
+                type="text"
+                id="search-input"
+                placeholder="SEARCH SSID/BSSID..."
+                style="
+                  background: rgba(0, 0, 0, 0.5);
+                  border: 1px solid var(--border-color);
+                  color: #fff;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  font-size: 0.65rem;
+                  font-family: &quot;Space Mono&quot;;
+                  outline: none;
+                  width: 200px;
+                "
+              />
+              <select id="status-filter" class="filter-select">
+                <option value="ALL">ALL STATUS</option>
+                <option value="THREAT">THREAT ONLY</option>
+                <option value="WARN">SUSPECT ONLY</option>
+                <option value="SAFE">SECURE ONLY</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>IDENTIFIER</th>
+                <th>BSSID & INTEL</th>
+                <th>CH</th>
+                <th>SIG</th>
+                <th>RISK</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="wifi-rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel-glass">
+        <div class="panel-title">Neural Activity Stream</div>
+        <div id="logs" class="log-list"></div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <span id="stat-threat" class="stat-val">0%</span>
+            <span class="stat-lbl">MAX THREAT</span>
+          </div>
+          <div class="stat-box">
+            <span id="stat-count" class="stat-val">0</span>
+            <span class="stat-lbl">ACTIVE NODES</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const norm = (m) => (m ? m.replace(/[^a-f0-9]/gi, "").toLowerCase() : "");
+      let pinnedBssids = new Set();
+
+      function togglePin(bssid) {
+        if (pinnedBssids.has(bssid)) pinnedBssids.delete(bssid);
+        else pinnedBssids.add(bssid);
+        update();
+      }
+
+      async function update() {
+        try {
+          const res = await fetch("/api/status");
+          const data = await res.json();
+
+          const mainTable = document.getElementById("wifi-rows");
+          const watchTable = document.getElementById("watchlist-rows");
+          const watchSection = document.getElementById("target-section");
+
+          const searchQuery = document
+            .getElementById("search-input")
+            .value.toLowerCase();
+          const statusFilter = document.getElementById("status-filter").value;
+
+          mainTable.innerHTML = "";
+          watchTable.innerHTML = "";
+          let total = 0;
+
+          data.networks.forEach((net) => {
+            net.bssids.forEach((ap) => {
+              total++;
+              const mac = norm(ap.mac);
+              const ssid = net.ssid.toLowerCase();
+              const isPinned = pinnedBssids.has(mac);
+
+              const alerts = (data.findings || []).filter(
+                (f) =>
+                  f.ssid.trim() === net.ssid.trim() &&
+                  (f.mac ? norm(f.mac) === mac : true),
+              );
+              const isCrit = alerts.some((f) => f.severity === "CRITICAL");
+              const isWarn = alerts.some((f) => f.severity === "WARNING");
+              const score = ap.threat_score || 0;
+              const isThreat = alerts.length > 0;
+
+              let tagClass = "tag-safe";
+              let tagLabel = "ENCRYPTED";
+              let statusCat = "SAFE";
+
+              if (isCrit) {
+                tagClass = "tag-danger";
+                tagLabel = "THREAT";
+                statusCat = "THREAT";
+              } else if (isWarn) {
+                tagClass = "tag-warn";
+                tagLabel = "SUSPECT";
+                statusCat = "WARN";
+              }
+
+              // FILTERING LOGIC
+              const matchesSearch =
+                ssid.includes(searchQuery) ||
+                mac.includes(searchQuery) ||
+                (ap.raw_mac && ap.raw_mac.toLowerCase().includes(searchQuery));
+              const matchesStatus =
+                statusFilter === "ALL" || statusFilter === statusCat;
+
+              // Do not skip if pinned (pinned items stay visible)
+              if (!isPinned) {
+                if (!matchesSearch || !matchesStatus) return;
+              }
+
+              const rowHtml = `
+                            <td><span class="ssid-cell">${net.ssid}</span></td>
+                            <td>
+                                <span class="bssid-sub">${(ap.raw_mac || ap.mac).toUpperCase()}</span>
+                                <small style="color: #666; font-size: 0.6rem">${ap.vendor || "Unknown"}</small>
+                                <small style="color: #444; font-size: 0.55rem; display: block;">${ap.vendor_address || ""}</small>
+                                ${isThreat ? `<div class="threat-info">> ${alerts[0].reason}</div>` : ""}
+                            </td>
+                            ${isPinned ? "" : `<td>${ap.channel}</td>`}
+                            <td>${ap.signal}%</td>
+                            <td style="color: ${score > 50 ? "var(--danger)" : "var(--accent)"}; font-family: 'Space Mono'; font-weight: bold">${score}%</td>
+                            <td><span class="tag ${tagClass}">${tagLabel}</span></td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="action-btn ${isPinned ? "unpin" : ""} ${isThreat && !isPinned ? "threat-pulse" : ""}">
+                                        ${isPinned ? "TARGETED" : "SELECT"} ▾
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <button onclick="togglePin('${mac}')">${isPinned ? "Release Node" : "Pin to Watchlist"}</button>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+
+              const tr = document.createElement("tr");
+              tr.innerHTML = rowHtml;
+
+              if (isPinned) watchTable.appendChild(tr);
+              else mainTable.appendChild(tr);
+            });
+          });
+
+          watchSection.style.display = pinnedBssids.size > 0 ? "block" : "none";
+          document.getElementById("stat-count").innerText = total;
+          document.getElementById("stat-threat").innerText =
+            `${data.global_threat}%`;
+
+          const logBox = document.getElementById("logs");
+          logBox.innerHTML = "";
+          data.logs
+            .slice(-15)
+            .reverse()
+            .forEach((l) => {
+              const row = document.createElement("div");
+              row.className = "log-row";
+              row.innerHTML = `<span class="log-time">${l.time.split(" ")[1]}</span> ${l.message}`;
+              logBox.appendChild(row);
+            });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // Add event listeners for filters (for immediate response)
+      document.getElementById("search-input").addEventListener("input", update);
+      document
+        .getElementById("status-filter")
+        .addEventListener("change", update);
+
+      setInterval(update, 2000);
+      update();
+    </script>
+  </body>
+</html>
