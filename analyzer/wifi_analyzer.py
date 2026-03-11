@@ -49,39 +49,37 @@ class WiFiAnalyzer:
                 threat_score, is_ml_anomaly = self.ai.predict_threat(mac, ssid, channel, signal)
                 ap['threat_score'] = threat_score
 
-                # 3. Rule-Based Intelligence
+                # 3. Autonomous AI Detection (Detects Rogue behavior without Whitelist)
+                if threat_score > 65:
+                    severity = 'CRITICAL' if threat_score > 80 else 'WARNING'
+                    findings.append({
+                        'type': 'AI_ROGUE_DETECTION',
+                        'severity': severity,
+                        'ssid': ssid,
+                        'mac': mac,
+                        'reason': f"{severity}: AI Unified engine detects {threat_score}% malicious behavior on SSID '{ssid}'."
+                    })
+
+                # 4. Whitelist Intelligence (Optional Secondary Verification)
                 if is_whitelisted_ssid:
                     config = self.whitelist[ssid]
                     trusted_bssids = [normalize_mac(m) for m in config.get('bssid', [])]
                     
-                    # DETECTION: MAC SPOOFING / EVIL TWIN
                     if mac not in trusted_bssids:
                         findings.append({
-                            'type': 'EVIL_TWIN_DETECTED',
+                            'type': 'WHITELIST_VIOLATION',
                             'severity': 'CRITICAL',
                             'ssid': ssid,
                             'mac': mac,
-                            'reason': f"CRITICAL: Unauthorized {ap['vendor']} device hijacking whitelisted SSID '{ssid}'."
+                            'reason': f"CRITICAL: Unauthorized {ap['vendor']} device on whitelisted SSID '{ssid}'."
                         })
-                    
-                    # DETECTION: SIGNAL HIJACK (High proximity anomaly)
                     elif is_ml_anomaly and signal > 90:
                          findings.append({
                             'type': 'SIGNAL_HIJACK',
                             'severity': 'WARNING',
                             'ssid': ssid,
                             'mac': mac,
-                            'reason': f"ALERT: Trusted {ap['vendor']} AP showing unusual signal behavior (Possible Hijack)."
+                            'reason': f"ALERT: Trusted {ap['vendor']} AP showing high-power signal anomaly."
                         })
-
-                # 4. Global AI Watch (Detect rogue behavior on any SSID)
-                if threat_score > 75:
-                     findings.append({
-                        'type': 'AI_ANOMALY',
-                        'severity': 'CRITICAL',
-                        'ssid': ssid,
-                        'mac': mac,
-                        'reason': f"AI THREAT: Unified engine detects {threat_score}% probability of malicious activity."
-                    })
 
         return findings

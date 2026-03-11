@@ -77,13 +77,18 @@ class ModelManager:
         # This is a classic indicator of multiple rogue APs attempting a takeover
         if ssid not in self.ssid_density: self.ssid_density[ssid] = set()
         self.ssid_density[ssid].add(mac)
-        if len(self.ssid_density[ssid]) > 2:
-            score += 30 # High density for a single SSID is suspicious
+        if len(self.ssid_density[ssid]) > 5:
+            score += 30 # High density (>5) for a single SSID is suspicious
 
         # 3. Channel Stability
         # Rogue APs often skip channels to find the "best" victim overlap
         if signal > 85 and channel not in [1, 6, 11, 36, 44]:
-            score += 15 # Suspicious high-power signal on non-standard channel
+            score += 20 # Suspicious high-power signal on non-standard channel
+
+        # 4. Signal Override (High Power Anomaly)
+        # Even without a whitelist, if an AP is significantly stronger than others for the same SSID
+        if signal > 92:
+            score += 15
 
         return min(score, 100)
 
