@@ -17,7 +17,7 @@ def main():
     
     # Start Monitor in main thread
     # Set simulate=False to only scan REAL-WORLD networks
-    monitor = RealTimeMonitor(interval=20, simulate=False)
+    monitor = RealTimeMonitor(interval=5, simulate=False)
     
     try:
         monitor.start()

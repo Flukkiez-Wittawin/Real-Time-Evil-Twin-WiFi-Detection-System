@@ -20,6 +20,7 @@
         --text-secondary: #64748b;
         --border-color: rgba(0, 217, 255, 0.15);
         --glass: blur(14px);
+        --sec: #00ffa3;
       }
 
       * {
@@ -108,6 +109,248 @@
         display: grid;
         grid-template-columns: 1fr 400px;
         gap: 1.5rem;
+      }
+
+      /* PHANTOM VISION RADAR HUD - v5.5 PRECISION */
+      .radar-container {
+        position: relative;
+        width: 380px;
+        height: 380px;
+        background:
+          radial-gradient(
+            circle at center,
+            rgba(0, 217, 255, 0.1) 0%,
+            transparent 75%
+          ),
+          #000;
+        border-radius: 50%;
+        border: 2px solid var(--border-color);
+        overflow: hidden;
+        margin: 0 auto 2rem auto;
+        box-shadow: 0 0 30px rgba(0, 217, 255, 0.05);
+      }
+      .radar-crosshair {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .radar-crosshair::before,
+      .radar-crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(0, 217, 255, 0.2);
+      }
+      .radar-crosshair::before {
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+      }
+      .radar-crosshair::after {
+        left: 50%;
+        top: 0;
+        width: 1px;
+        height: 100%;
+      }
+
+      .observer-node {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 14px;
+        height: 14px;
+        background: var(--success);
+        border: 2px solid #fff;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 15px var(--success);
+        z-index: 100;
+      }
+      .observer-pulse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--success);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: observer-pulse 2s infinite;
+      }
+      @keyframes observer-pulse {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(4);
+          opacity: 0;
+        }
+      }
+
+      .radar-grid {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background-image:
+          linear-gradient(rgba(0, 217, 255, 0.1) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 217, 255, 0.1) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.3;
+      }
+      .radar-circle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      .radar-sweep {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 380px;
+        height: 380px;
+        background: conic-gradient(
+          from 0deg,
+          rgba(0, 217, 255, 0.3) 0deg,
+          transparent 90deg
+        );
+        transform-origin: center center;
+        animation: sweep 4s linear infinite;
+        pointer-events: none;
+        z-index: 5;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      @keyframes sweep {
+        from {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        to {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+      .radar-node {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 15px currentColor;
+        z-index: 20;
+        cursor: pointer;
+        background: currentColor;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      .radar-node::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 30px;
+        height: 30px;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.3;
+        animation: pulse-ring 2s ease-out infinite;
+      }
+      @keyframes pulse-ring {
+        0% {
+          transform: translate(-50%, -50%) scale(0.5);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(2);
+          opacity: 0;
+        }
+      }
+
+      .radar-circle-label {
+        position: absolute;
+        top: calc(50% - 10px);
+        left: 50%;
+        color: rgba(0, 217, 255, 0.4);
+        font-size: 0.5rem;
+        font-family: "Space Mono", monospace;
+        pointer-events: none;
+      }
+
+      .radar-node-label {
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.55rem;
+        color: var(--text-primary);
+        white-space: nowrap;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 1px 4px;
+        border-radius: 3px;
+        pointer-events: none;
+        border: 1px solid rgba(0, 217, 255, 0.2);
+      }
+
+      .radar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: -1rem;
+        margin-bottom: 1rem;
+        padding: 0 1rem;
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        font-family: "Space Mono", monospace;
+      }
+      .zoom-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 150px;
+        height: 4px;
+        background: rgba(0, 217, 255, 0.2);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+      }
+      .zoom-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent);
+      }
+
+      .xai-briefing {
+        background: rgba(0, 217, 255, 0.05);
+        border-left: 3px solid var(--accent);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        color: var(--accent);
+        font-family: "Space Mono", monospace;
+      }
+      .xai-title {
+        font-weight: 900;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+        display: block;
+        opacity: 0.7;
       }
 
       .main-stack {
@@ -391,6 +634,30 @@
       </nav>
 
       <div class="sys-status">
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-right: 15px;
+            border-right: 1px solid var(--border-color);
+            padding-right: 15px;
+          "
+        >
+          <span
+            style="
+              font-size: 0.55rem;
+              color: var(--accent);
+              letter-spacing: 1px;
+            "
+            >SYSTEM_SEC_LEVEL</span
+          >
+          <span
+            id="sec-label"
+            style="font-size: 0.9rem; font-weight: 800; color: var(--success)"
+            >OPTIMIZED</span
+          >
+        </div>
         <div class="status-dot"></div>
         MONITOR ACTIVATE
       </div>
@@ -398,6 +665,77 @@
 
     <div class="grid-layout">
       <div class="main-stack">
+        <!-- PHANTOM VISION RADAR HUD -->
+        <div class="panel-glass" style="padding: 1rem">
+          <div class="panel-title" style="margin-bottom: 0.5rem">
+            🛰️ Phantom Vision: Strategic Radar HUD
+          </div>
+          <div class="radar-container" id="radar-canvas">
+            <div class="radar-grid"></div>
+            <div class="radar-crosshair"></div>
+            <div class="observer-node">
+              <div class="observer-pulse"></div>
+              <div
+                style="
+                  position: absolute;
+                  top: -18px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  font-size: 0.5rem;
+                  color: var(--success);
+                  font-weight: bold;
+                  text-shadow: 0 0 5px #000;
+                "
+              >
+                YOU (OBSERVER)
+              </div>
+            </div>
+
+            <div class="radar-circle" style="width: 100px; height: 100px"></div>
+            <span
+              class="radar-circle-label"
+              style="transform: translate(-50%, -50px)"
+              >5m</span
+            >
+            <div class="radar-circle" style="width: 200px; height: 200px"></div>
+            <span
+              class="radar-circle-label"
+              style="transform: translate(-50%, -100px)"
+              >15m</span
+            >
+            <div class="radar-circle" style="width: 300px; height: 300px"></div>
+            <span
+              class="radar-circle-label"
+              style="transform: translate(-50%, -150px)"
+              >30m</span
+            >
+            <div class="radar-circle" style="width: 400px; height: 400px"></div>
+            <span
+              class="radar-circle-label"
+              style="transform: translate(-50%, -200px)"
+              >50m</span
+            >
+            <div class="radar-sweep"></div>
+          </div>
+          <div class="radar-controls">
+            <span>MAX RANGE: <span id="zoom-value">50m</span></span>
+            <input
+              type="range"
+              id="radar-zoom"
+              class="zoom-slider"
+              min="10"
+              max="200"
+              value="50"
+            />
+          </div>
+          <div class="xai-briefing" id="intelligence-briefing">
+            <span class="xai-title">PHANTOM_AI_INTEL_STRATEGY</span>
+            <div id="xai-content">
+              Scanning electronic environment... Awaiting forensic data packets.
+            </div>
+          </div>
+        </div>
+
         <!-- TARGET WATCHLIST -->
         <div
           id="target-section"
@@ -489,6 +827,26 @@
     <script>
       const norm = (m) => (m ? m.replace(/[^a-f0-9]/gi, "").toLowerCase() : "");
       let pinnedBssids = new Set();
+      let currentMaxRange = 50;
+
+      const zoomControl = document.getElementById("radar-zoom");
+      const zoomText = document.getElementById("zoom-value");
+
+      if (zoomControl) {
+        zoomControl.addEventListener("input", (e) => {
+          currentMaxRange = parseInt(e.target.value);
+          zoomText.innerText = currentMaxRange + "m";
+          // Update ring labels
+          const labels = document.querySelectorAll(".radar-circle-label");
+          if (labels.length >= 4) {
+            labels[0].innerText = (currentMaxRange * 0.25).toFixed(0) + "m";
+            labels[1].innerText = (currentMaxRange * 0.5).toFixed(0) + "m";
+            labels[2].innerText = (currentMaxRange * 0.75).toFixed(0) + "m";
+            labels[3].innerText = currentMaxRange + "m";
+          }
+          update(); // Re-render radar nodes with new zoom
+        });
+      }
 
       function togglePin(bssid) {
         if (pinnedBssids.has(bssid)) pinnedBssids.delete(bssid);
@@ -498,6 +856,7 @@
 
       async function update() {
         try {
+          let total = 0;
           const res = await fetch("/api/status");
           const data = await res.json();
 
@@ -505,20 +864,25 @@
           const watchTable = document.getElementById("watchlist-rows");
           const watchSection = document.getElementById("target-section");
 
+          mainTable.innerHTML = "";
+          watchTable.innerHTML = "";
+
           const searchQuery = document
             .getElementById("search-input")
             .value.toLowerCase();
           const statusFilter = document.getElementById("status-filter").value;
 
-          mainTable.innerHTML = "";
-          watchTable.innerHTML = "";
-          let total = 0;
+          const radarCanvas = document.getElementById("radar-canvas");
+          // Clear old nodes
+          document.querySelectorAll(".radar-node").forEach((n) => n.remove());
+
+          let maxThreatAP = null;
 
           data.networks.forEach((net) => {
             net.bssids.forEach((ap) => {
               total++;
               const mac = norm(ap.mac);
-              const ssid = net.ssid.toLowerCase();
+              const ssid = net.ssid;
               const isPinned = pinnedBssids.has(mac);
 
               const alerts = (data.findings || []).filter(
@@ -526,14 +890,59 @@
                   f.ssid.trim() === net.ssid.trim() &&
                   (f.mac ? norm(f.mac) === mac : true),
               );
+              const score = ap.threat_score || 0;
+              if (!maxThreatAP || score > (maxThreatAP.threat_score || 0)) {
+                maxThreatAP = ap;
+                maxThreatAP.target_ssid = ssid;
+              }
+
+              // DISTANCE ESTIMATION (Meters)
+              function calculateDistance(signalPercent) {
+                if (signalPercent >= 95) return 1.0;
+                const dist = Math.pow(10, (95 - signalPercent) / 40);
+                return dist;
+              }
+              const distNumeric = calculateDistance(ap.signal);
+              const distInMeters = distNumeric.toFixed(1) + "m";
+
+              // RADAR RENDERING
+              const angle =
+                (parseInt(mac.slice(-4), 16) % 360) * (Math.PI / 180);
+              const radarRadiusPct = 45; // 45% of container width is the max ring
+              const radius = (distNumeric / currentMaxRange) * radarRadiusPct;
+
+              const x = 50 + radius * Math.cos(angle);
+              const y = 50 + radius * Math.sin(angle);
+
+              // Only show nodes within radar boundaries
+              if (radius > radarRadiusPct + 10) return;
+
+              const node = document.createElement("div");
+              node.className = "radar-node";
+              if (score > 70) node.classList.add("threat-pulse");
+              node.style.left = `${x}%`;
+              node.style.top = `${y}%`;
+              node.style.color =
+                score > 70
+                  ? "var(--danger)"
+                  : score > 30
+                    ? "var(--warning)"
+                    : "var(--accent)";
+
+              // Permanent Tag Label
+              const label = document.createElement("div");
+              label.className = "radar-node-label";
+              label.innerText = `${ssid} (${distInMeters})`;
+              node.appendChild(label);
+
+              node.dataset.label = `${ssid} | MAC: ${ap.mac} | Dist: ${distInMeters}`;
+              radarCanvas.appendChild(node);
               const isCrit = alerts.some((f) => f.severity === "CRITICAL");
               const isWarn = alerts.some((f) => f.severity === "WARNING");
-              const score = ap.threat_score || 0;
               const isThreat = alerts.length > 0;
 
               let tagClass = "tag-safe";
-              let tagLabel = "ENCRYPTED";
-              let statusCat = "SAFE";
+              let tagLabel = "SECURE";
 
               if (isCrit) {
                 tagClass = "tag-danger";
@@ -546,10 +955,12 @@
               }
 
               // FILTERING LOGIC
+              const vendor = (ap.vendor || "").toLowerCase();
               const matchesSearch =
-                ssid.includes(searchQuery) ||
-                mac.includes(searchQuery) ||
-                (ap.raw_mac && ap.raw_mac.toLowerCase().includes(searchQuery));
+                ssid.toLowerCase().includes(searchQuery) ||
+                mac.toLowerCase().includes(searchQuery) ||
+                vendor.includes(searchQuery) ||
+                tagLabel.toLowerCase().includes(searchQuery);
               const matchesStatus =
                 statusFilter === "ALL" || statusFilter === statusCat;
 
@@ -560,26 +971,38 @@
 
               const rowHtml = `
                             <td><span class="ssid-cell">${net.ssid}</span></td>
-                            <td>
-                                <span class="bssid-sub">${(ap.raw_mac || ap.mac).toUpperCase()}</span>
-                                <small style="color: #666; font-size: 0.6rem">${ap.vendor || "Unknown"}</small>
-                                <small style="color: #444; font-size: 0.55rem; display: block;">${ap.vendor_address || ""}</small>
-                                ${isThreat ? `<div class="threat-info">> ${alerts[0].reason}</div>` : ""}
-                            </td>
-                            ${isPinned ? "" : `<td>${ap.channel}</td>`}
-                            <td>${ap.signal}%</td>
-                            <td style="color: ${score > 50 ? "var(--danger)" : "var(--accent)"}; font-family: 'Space Mono'; font-weight: bold">${score}%</td>
-                            <td><span class="tag ${tagClass}">${tagLabel}</span></td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="action-btn ${isPinned ? "unpin" : ""} ${isThreat && !isPinned ? "threat-pulse" : ""}">
-                                        ${isPinned ? "TARGETED" : "SELECT"} ▾
-                                    </button>
-                                    <div class="dropdown-content">
-                                        <button onclick="togglePin('${mac}')">${isPinned ? "Release Node" : "Pin to Watchlist"}</button>
-                                    </div>
-                                </div>
-                            </td>
+                             <td>
+                                 <span class="bssid-sub" style="display: flex; align-items: center; gap: 8px;">
+                                    ${(ap.raw_mac || ap.mac).toUpperCase()}
+                                    <span style="font-size: 0.5rem; background: rgba(255,255,255,0.05); padding: 2px 5px; border-radius: 4px; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1)">
+                                        ${ap.auth || "Open"} ${ap.cipher ? `/ ${ap.cipher}` : ""}
+                                    </span>
+                                 </span>
+                                 <small style="color: #666; font-size: 0.6rem; display: block; margin-top: 2px">${ap.vendor || "Unknown"}</small>
+                                 <small style="color: #444; font-size: 0.55rem; display: block;">${ap.vendor_address || ""}</small>
+                                 ${isThreat ? `<div class="threat-info" style="margin-bottom: 5px">> ${alerts[0].reason}</div>` : ""}
+                                 ${
+                                   ap.forensics && ap.forensics.length > 0
+                                     ? `<div class="forensics-list" style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px">
+                                         ${ap.forensics.map((f) => `<span style="font-size: 0.5rem; background: rgba(0,217,255,0.05); color: var(--accent); padding: 1px 4px; border: 1px solid rgba(0,217,255,0.2); border-radius: 3px; font-family: 'Space Mono'">[FORENSIC] ${f.split(":")[0]}</span>`).join("")}
+                                     </div>`
+                                     : ""
+                                 }
+                             </td>
+                             ${isPinned ? "" : `<td>${ap.channel}</td>`}
+                             <td>${ap.signal}%</td>
+                             <td style="color: ${score > 50 ? "var(--danger)" : "var(--accent)"}; font-family: 'Space Mono'; font-weight: bold">${score}%</td>
+                             <td><span class="tag ${tagClass}">${tagLabel}</span></td>
+                             <td>
+                                 <div class="dropdown">
+                                     <button class="action-btn ${isPinned ? "unpin" : ""} ${isThreat && !isPinned ? "threat-pulse" : ""}">
+                                         ${isPinned ? "TARGETED" : "SELECT"} ▾
+                                     </button>
+                                     <div class="dropdown-content">
+                                         <button onclick="togglePin('${mac}')">${isPinned ? "Release Node" : "Pin to Watchlist"}</button>
+                                     </div>
+                                 </div>
+                             </td>
                         `;
 
               const tr = document.createElement("tr");
@@ -592,8 +1015,37 @@
 
           watchSection.style.display = pinnedBssids.size > 0 ? "block" : "none";
           document.getElementById("stat-count").innerText = total;
-          document.getElementById("stat-threat").innerText =
-            `${data.global_threat}%`;
+          const threat = data.global_threat || 0;
+          document.getElementById("stat-threat").innerText = `${threat}%`;
+
+          const secLabel = document.getElementById("sec-label");
+          const statusDot = document.querySelector(".status-dot");
+
+          if (threat > 80) {
+            secLabel.innerText = "CRITICAL_RISK";
+            secLabel.style.color = "var(--danger)";
+            statusDot.style.background = "var(--danger)";
+            statusDot.style.boxShadow = "0 0 10px var(--danger)";
+          } else if (threat > 40) {
+            secLabel.innerText = "MONITOR_WARN";
+            secLabel.style.color = "var(--warning)";
+            statusDot.style.background = "var(--warning)";
+            statusDot.style.boxShadow = "0 0 10px var(--warning)";
+          } else {
+            secLabel.innerText = "SEC_SHIELD_ACTIVE";
+            secLabel.style.color = "var(--success)";
+            statusDot.style.background = "var(--success)";
+            statusDot.style.boxShadow = "0 0 10px var(--success)";
+          }
+
+          // Update XAI Briefing
+          const xaiContent = document.getElementById("xai-content");
+          if (maxThreatAP && maxThreatAP.strategic_intel) {
+            xaiContent.innerText = maxThreatAP.strategic_intel;
+            if (maxThreatAP.threat_score > 70)
+              xaiContent.style.color = "var(--danger)";
+            else xaiContent.style.color = "var(--accent)";
+          }
 
           const logBox = document.getElementById("logs");
           logBox.innerHTML = "";

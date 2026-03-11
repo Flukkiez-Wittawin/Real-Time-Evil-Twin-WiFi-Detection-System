@@ -7,15 +7,16 @@ from utils.logger import logger
 
 class ModelManager:
     """
-    PHANTOM AI Engine v3.0 - Hybrid Intelligence
-    Combines IsolationForest ML with heuristic behavioral analysis.
+    PHANTOM AI Engine v4.0 - Deep Forensic Intelligence
+    Implements Signal Drift Analysis and Peer-Anomaly Detection.
     """
     def __init__(self, model_path='ai/model.pkl', data_path='ai/training_data.csv'):
         self.model_path = model_path
         self.data_path = data_path
         self.model = self.load_model()
         self.history = {} # mac -> list of signal strengths
-        self.ssid_density = {} # ssid -> count of unique MACs
+        self.ssid_density = {} # ssid -> set of unique MACs
+        self.first_seen = {} # mac -> timestamp
 
     def load_model(self):
         if os.path.exists(self.model_path):
@@ -29,98 +30,102 @@ class ModelManager:
         try:
             if not os.path.exists(self.data_path):
                 self._create_refined_training_data()
-            
             df = pd.read_csv(self.data_path)
-            # Features: Channel, Signal, and a dummy variance baseline
             X = df[['Channel', 'Signal']]
-            
-            # Contamination 0.05 for higher precision in "Real-Time" detection
             model = IsolationForest(contamination=0.05, random_state=42)
             model.fit(X)
             joblib.dump(model, self.model_path)
-            logger.info("AI: Neural model v3.0 trained successfully.")
+            logger.info("AI: Deep Neural model v4.0 trained.")
             return model
         except Exception as e:
-            logger.error(f"AI: Model Training Error: {e}")
+            logger.error(f"AI: Training Error: {e}")
             return None
 
     def _create_refined_training_data(self):
         os.makedirs('ai', exist_ok=True)
-        # Expanded dataset for better range detection
-        data = [
-            [1, 30, 'normal'], [1, 45, 'normal'], [6, 50, 'normal'], [11, 40, 'normal'],
-            [1, 20, 'normal'], [6, 60, 'normal'], [11, 55, 'normal'], [44, 30, 'normal'],
-            [1, 95, 'evil'],   [6, 98, 'evil'],  [11, 92, 'evil']
-        ]
-        df = pd.DataFrame(data, columns=['Channel', 'Signal', 'Label'])
+        data = [[1, 30], [6, 50], [11, 40], [1, 95], [6, 98], [11, 92]]
+        df = pd.DataFrame(data, columns=['Channel', 'Signal'])
         df.to_csv(self.data_path, index=False)
 
     def analyze_behavior(self, mac, ssid, channel, signal):
         """
-        Stage 1 & 2: Heuristic & Behavioral Analysis
-        Returns a behavior_score (0-100)
+        v4.0 Deep Forensic Metrics
         """
         score = 0
+        forensics = []
         
-        # 1. Signal Jitter (Variance Tracking)
+        # 1. Temporal Tracking (Sudden Appearance)
+        import time
+        now = time.time()
+        if mac not in self.first_seen:
+            self.first_seen[mac] = now
+        else:
+            # If the AP appeared recently and is already at max signal
+            if (now - self.first_seen[mac]) < 30 and signal > 85:
+                score += 25
+                forensics.append("TEMPORAL_BURST: AP appeared at max signal within <30s.")
+
+        # 2. Signal Drift & Stability
         if mac not in self.history: self.history[mac] = []
         self.history[mac].append(signal)
-        if len(self.history[mac]) > 10: self.history[mac].pop(0)
+        if len(self.history[mac]) > 15: self.history[mac].pop(0)
         
-        if len(self.history[mac]) >= 3:
+        if len(self.history[mac]) >= 5:
             variance = np.var(self.history[mac])
-            # High jitter often indicates a mobile attacker or signal injection
-            if variance > 15: score += 25 
-            elif variance > 8: score += 10
+            # v4.0: SUSPICIOUS STABILITY
+            # Real distant APs have environmental drift. Static rogue devices have "Perfect" signal.
+            if variance < 0.2: 
+                score += 20
+                forensics.append("STABILITY_ANOMALY: Suspiciously static signal (Potential hardware injector).")
+            # Jitter
+            elif variance > 12: 
+                score += 20
+                forensics.append("JITTER_ANOMALY: High signal variance detected.")
 
-        # 2. SSID Density (Same SSID, different MACs)
-        # This is a classic indicator of multiple rogue APs attempting a takeover
+        # 3. SSID Density
         if ssid not in self.ssid_density: self.ssid_density[ssid] = set()
         self.ssid_density[ssid].add(mac)
         if len(self.ssid_density[ssid]) > 5:
-            score += 30 # High density (>5) for a single SSID is suspicious
+            score += 30
+            forensics.append("DENSITY_FLOOD: Excessive BSSIDs detected for this SSID.")
 
-        # 3. Channel Stability
-        # Rogue APs often skip channels to find the "best" victim overlap
-        if signal > 85 and channel not in [1, 6, 11, 36, 44]:
-            score += 20 # Suspicious high-power signal on non-standard channel
+        # 4. Standard Heuristics
+        if signal > 92 and channel not in [1, 6, 11, 36, 44]:
+            score += 20
+            forensics.append("CHANNEL_STEALTH: High-power signal on non-standard channel.")
 
-        # 4. Signal Override (High Power Anomaly)
-        # Even without a whitelist, if an AP is significantly stronger than others for the same SSID
-        if signal > 92:
-            score += 15
-
-        return min(score, 100)
+        return min(score, 100), forensics
 
     def predict_threat(self, mac, ssid, channel, signal):
-        """
-        Stage 3: Combined Neural & Behavioral Prediction
-        Returns (threat_score, is_anomaly)
-        """
-        behavior_score = self.analyze_behavior(mac, ssid, channel, signal)
+        behavior_score, forensics = self.analyze_behavior(mac, ssid, channel, signal)
         
-        ml_anomaly = False
         ml_score = 0
         if self.model:
-            # Create DF to match feature names and avoid warnings
             X_input = pd.DataFrame([[channel, signal]], columns=['Channel', 'Signal'])
-            
-            # ML Prediction
             pred = self.model.predict(X_input)[0]
-            ml_anomaly = (pred == -1)
-            
-            # Decision function score
             raw_ml = self.model.decision_function(X_input)[0]
-            if raw_ml < 0:
-                ml_score = min(abs(raw_ml) * 500 + 40, 70)
-            else:
-                ml_score = max(0, 30 - (raw_ml * 100))
+            ml_score = min(abs(raw_ml) * 500 + 40, 70) if pred == -1 else max(0, 30 - (raw_ml * 100))
 
-        # Composite Score: 60% Behavior, 40% ML
-        total_score = (behavior_score * 0.6) + (ml_score * 0.4)
-        
-        # Boost if both agree
-        if ml_anomaly and behavior_score > 40:
-            total_score = min(total_score + 20, 100)
+        total_score = int((behavior_score * 0.7) + (ml_score * 0.3))
+        return total_score, forensics
+
+    def generate_xai_report(self, ssid, mac, forensics, threat_score):
+        """
+        Explainable AI (XAI) - Strategic Reasoning Engine
+        Converts abstract anomalies into human-readable battlefield intelligence.
+        """
+        if threat_score < 40:
+            return "ENVIRONMENT_STABLE: No active electronic warfare signatures detected."
             
-        return int(total_score), ml_anomaly
+        briefing = []
+        if any("STABILITY" in f for f in forensics):
+            briefing.append("High-precision signal injector detected (Static Amplitude Signature).")
+        if any("TEMPORAL" in f for f in forensics):
+            briefing.append("Sudden tactical deployment (Burst Appearance).")
+        if any("DENSITY" in f for f in forensics):
+            briefing.append("Resource exhaustion attempt (MAC Flood/Density Anomaly).")
+        if any("HARDWARE" in f for f in forensics):
+            briefing.append("Advanced masquerade detected (MAC/OUI Identity Mask).")
+            
+        case_summary = " | ".join(briefing) if briefing else "Anomalous radio behavior detected."
+        return f"STRATEGIC_INTEL: {case_summary} Target seems to be an active Evil Twin masquerading as '{ssid}'."
